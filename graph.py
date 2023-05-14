@@ -22,29 +22,29 @@ class Graph:
         self.game_state = game_state
         self.board = game_state["board"]
 
+        # Width and height of the board
         self.width = self.board["width"]
         self.height = self.board["height"]
 
-        self.hazards = self.board["hazards"]
+        # List of all battlesnake objects
         self.snakes = self.board["snakes"]
 
+        # Battlesnake object with all the info about our snake
         self.you = game_state["you"]
 
         # Get the current board with free spaces and obstacles
-        self.boardGraph = self.get_board()
+        self.board = self.get_board()
     
     def get_obstacles(self):
 
         obstacles = []
-
+        count = 0
         # Add all snake bodies to obstacles (including heads)
         for snake in self.snakes:
             for body in snake["body"]:
-                obstacles.append(body)
-
-        # Add all hazards to obstacles
-        for hazard in self.hazards:
-            obstacles.append(hazard)
+                obstacles.append((body["x"], body["y"]))
+                count += 1
+        # print("Number of obstacles: {}".format(count))
 
         return obstacles
 
@@ -52,33 +52,15 @@ class Graph:
         
         NodeArray = []
 
+        # Assign 1 for every grid with and obstacle and 0 for free (creates a 2D array)
         for x in range(self.width):
+            nodeRow = []
             for y in range(self.height):
-
-                if (x,y) not in self.get_obstacles():
-                    node = Node(x, y)
-
-                    # Add edges to node from all 4 directions if not an obstacle or wall
-                    
-                    if x > 0 and (x-1, y) not in self.get_obstacles():
-                        left = Node(x-1, y)
-                        node.edges.append(Edge(node, left, 1))
-                        left.edges.append(Edge(left, node, 1))
-                    elif x < self.width - 1 and (x+1, y) not in self.get_obstacles():
-                        right = Node(x+1, y)
-                        node.edges.append(Edge(node, right, 1))
-                        right.edges.append(Edge(right, node, 1))
-                    elif y > 0 and (x, y-1) not in self.get_obstacles():
-                        down = Node(x, y-1)
-                        node.edges.append(Edge(node, down, 1))
-                        down.edges.append(Edge(down, node, 1))
-                    elif y < self.height - 1 and (x, y+1) not in self.get_obstacles():
-                        up = Node(x, y+1)
-                        node.edges.append(Edge(node, up, 1))
-                        up.edges.append(Edge(up, node, 1))
-
-                    NodeArray.append(node)
-
+                if (x,y) in self.get_obstacles():
+                    nodeRow.append(1)
+                else:
+                    nodeRow.append(0)
+            NodeArray.append(nodeRow)
 
         return NodeArray
     
